@@ -101,8 +101,7 @@ public class Game {
 
     private void initGrid(Random random) {
         GridMaker gridMaker = new GridMaker(random, gameManager.getLeagueLevel());
-        //        this.grid = gridMaker.make();
-        this.grid = gridMaker.makeFromImage();
+        this.grid = gridMaker.make();
     }
 
     public void resetGameTurnData() {
