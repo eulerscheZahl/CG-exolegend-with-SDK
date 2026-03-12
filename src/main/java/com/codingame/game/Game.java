@@ -64,8 +64,19 @@ public class Game {
                         c = grid.opposite(c);
                     }
                     bird.body.add(c);
+                    if (bird.body.size() == 1) {
+                        // Is the head enclosed?
+                        Tile left = grid.get(c.add(-1, 0));
+                        Tile right = grid.get(c.add(1, 0));
+                        if (left.getType() == Tile.TYPE_WALL && right.getType() == Tile.TYPE_WALL) {
+                            grid.get(c.add(-1, 0)).clear();
+                            grid.get(grid.opposite(c.add(-1, 0))).clear();
+                        }
+                    }
                 }
             }
+            
+            
 
         }
     }
@@ -91,7 +102,6 @@ public class Game {
     private void initGrid(Random random) {
         GridMaker gridMaker = new GridMaker(random, gameManager.getLeagueLevel());
         this.grid = gridMaker.make();
-
     }
 
     public void resetGameTurnData() {
@@ -272,7 +282,7 @@ public class Game {
                     }
 
                     // Are they adjacent?
-                    boolean adj = birdsAreTouching(current, other);
+                    boolean adj = birdsAreTouchingVertically(current, other);
                     if (adj) {
                         toVisit.add(other);
                     }
@@ -304,7 +314,7 @@ public class Game {
                         bird.body = new LinkedList<>(bird.body.stream().map(c -> c.add(0, 1)).toList());
                         fallDistances.compute(bird.id, (k, v) -> v == null ? 1 : v + 1);
                         // check out of bounds
-                        if (bird.getHeadPos().getY() >= grid.height) {
+                        if (bird.body.stream().allMatch(part -> part.getY() >= grid.height + 1)) {
                             bird.alive = false;
                             outOfBounds.add(bird);
                         }
@@ -317,10 +327,11 @@ public class Game {
 
     }
 
-    private boolean birdsAreTouching(Bird bird, Bird other) {
+    private boolean birdsAreTouchingVertically(Bird bird, Bird other) {
         for (Coord c1 : bird.body) {
             for (Coord c2 : other.body) {
-                if (c1.manhattanTo(c2) == 1) {
+                
+                if (c1.manhattanTo(c2) == 1 && c1.getX() == c2.getX()) {
                     return true;
                 }
             }
