@@ -1,6 +1,9 @@
 package com.codingame.game;
 
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.MultiplayerGameManager;
 import com.codingame.view.ViewModule;
@@ -14,6 +17,8 @@ public class Referee extends AbstractReferee {
     @Inject private CommandManager commandManager;
     @Inject private Game game;
     @Inject private ViewModule viewModule;
+
+    public static ConcurrentLinkedQueue<String> LogQueue = new ConcurrentLinkedQueue<>();
 
     @Override
     public void init() {
@@ -82,6 +87,9 @@ public class Referee extends AbstractReferee {
                 player.deactivate("Timeout!");
                 gameManager.addToGameSummary(player.getNicknameToken() + " has not provided " + player.getExpectedOutputLines() + " lines in time");
             }
+            String summary = "";
+            while (LogQueue.size() > 0) summary += LogQueue.poll() + "\n";
+            gameManager.addToGameSummary(summary);
         }
 
     }
